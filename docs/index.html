@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Part 포털</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --tx: #0f172a;
+  --mut: #64748b;
+  --bd: #e2e8f0;
+  --bd-focus: #3b82f6;
+  --ac: #2563eb;
+  --ac-hover: #1d4ed8;
+  --ac-sub: #eff6ff;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --ok: #059669;
+  --ok-bg: #ecfdf5;
+  --badge-m-bg: #f5f3ff;
+  --badge-m-tx: #7c3aed;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+  --shadow-drawer: -10px 0 25px -5px rgba(15, 23, 42, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0f17;
+    --card: #151c28;
+    --tx: #f1f5f9;
+    --mut: #94a3b8;
+    --bd: #283244;
+    --bd-focus: #60a5fa;
+    --ac: #3b82f6;
+    --ac-hover: #60a5fa;
+    --ac-sub: #1e293b;
+    --warn: #fbbf24;
+    --warn-bg: #451a03;
+    --ok: #34d399;
+    --ok-bg: #064e3b;
+    --badge-m-bg: #2e1065;
+    --badge-m-tx: #c084fc;
+    --shadow-drawer: -10px 0 30px rgba(0, 0, 0, 0.6);
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--tx);
+  font: 14px/1.6 "Pretendard Variable", Pretendard, system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header & Controls */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--card);
+  border-bottom: 1px solid var(--bd);
+  box-shadow: var(--shadow-sm);
+  padding: 14px 24px;
+}
+
+.header-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--tx);
+  margin-right: 8px;
+}
+
+.brand span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--ac-sub);
+  border-radius: 8px;
+  color: var(--ac);
+  font-size: 16px;
+}
+
+input, select, button, textarea {
+  font: inherit;
+  color: inherit;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 8px 12px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--bd-focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+#q {
+  flex: 1;
+  min-width: 300px;
+  font-size: 14.5px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  background-color: var(--bg);
+}
+
+#q:focus {
+  background-color: var(--card);
+}
+
+select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 10px) center;
+  padding-right: 28px;
+  appearance: none;
+}
+
+button {
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+button:hover {
+  background: var(--ac-sub);
+  border-color: var(--ac);
+  color: var(--ac);
+}
+
+button.pri {
+  background: var(--ac);
+  border-color: var(--ac);
+  color: #fff;
+}
+
+button.pri:hover {
+  background: var(--ac-hover);
+  border-color: var(--ac-hover);
+  color: #fff;
+}
+
+label.chk {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--mut);
+  user-select: none;
+  cursor: pointer;
+  font-size: 13.5px;
+  padding: 0 4px;
+}
+
+label.chk input {
+  accent-color: var(--ac);
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Main Content */
+main {
+  padding: 20px 24px 60px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.meta {
+  color: var(--mut);
+  margin-bottom: 14px;
+  font-size: 13.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta b {
+  color: var(--tx);
+}
+
+.warn {
+  color: var(--warn);
+  font-weight: 500;
+}
+
+/* Table Card */
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13.5px;
+}
+
+th, td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--bd);
+  vertical-align: middle;
+}
+
+th {
+  background: var(--bg);
+  color: var(--mut);
+  font-weight: 600;
+  font-size: 12.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--bd);
+}
+
+th:hover {
+  color: var(--tx);
+  background: var(--bd);
+}
+
+tbody tr {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: var(--ac-sub);
+}
+
+tr.sel {
+  background: var(--ac-sub) !important;
+  box-shadow: inset 3px 0 0 var(--ac);
+}
+
+mark {
+  background: #fef08a;
+  color: #1e293b;
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+/* Tags / Badges */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--bd);
+  color: var(--mut);
+  background: var(--bg);
+  white-space: nowrap;
+  gap: 3px;
+}
+
+.tag.n {
+  color: var(--ok);
+  background: var(--ok-bg);
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
+.tag.m {
+  color: var(--badge-m-tx);
+  background: var(--badge-m-bg);
+  border-color: rgba(124, 58, 237, 0.2);
+}
+
+.tag.t {
+  color: var(--warn);
+  background: var(--warn-bg);
+  border-color: rgba(217, 119, 6, 0.2);
+}
+
+.empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--mut);
+  background: var(--card);
+  border: 1px dashed var(--bd);
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+/* Detail Drawer (Panel) */
+aside {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(480px, 100vw);
+  height: 100%;
+  background: var(--card);
+  border-left: 1px solid var(--bd);
+  box-shadow: var(--shadow-drawer);
+  transform: translateX(100%);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+}
+
+aside.open {
+  transform: translateX(0);
+}
+
+aside .hd {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--bd);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--card);
+}
+
+#pName {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--tx);
+  line-height: 1.3;
+}
+
+#pClose {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--mut);
+  font-size: 16px;
+  line-height: 1;
+}
+
+#pClose:hover {
+  background: var(--bg);
+  color: var(--tx);
+}
+
+aside .bd {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  row-gap: 10px;
+  column-gap: 12px;
+  margin: 0 0 20px;
+  padding: 14px;
+  background: var(--bg);
+  border-radius: 8px;
+  border: 1px solid var(--bd);
+  font-size: 13px;
+}
+
+dt {
+  color: var(--mut);
+  font-weight: 500;
+}
+
+dd {
+  margin: 0;
+  word-break: break-all;
+  font-weight: 500;
+}
+
+.drawer-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.drawer-actions a {
+  flex: 1;
+  text-decoration: none;
+}
+
+.drawer-actions a button {
+  width: 100%;
+}
+
+textarea {
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.small {
+  font-size: 12px;
+  color: var(--mut);
+}
+
+.note-header {
+  font-weight: 600;
+  font-size: 13.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="row">
+      <div class="brand"><span>🔧</span>Part 포털</div>
+      <input id="q" type="search" placeholder="Part 이름 / 규격 / 품번 / 설명 검색 (단어 구분은 공백)" autofocus>
+      <select id="ftype">
+        <option value="">전체 종류</option>
+        <option value="drawing">도면</option>
+        <option value="manual">매뉴얼</option>
+        <option value="data">자료(txt/csv/xlsx/수동)</option>
+      </select>
+      <select id="fdoc">
+        <option value="">전체 문서</option>
+      </select>
+      <label class="chk"><input type="checkbox" id="fnote"> 설명 있음</label>
+      <button id="btnDiag" title="문서별 인덱싱 결과(페이지·추출 건수·OCR·경고) 확인">진단</button>
+      <button id="btnLoad" title="parts_index.json 직접 불러오기">인덱스 불러오기</button>
+      <button id="btnExp" title="작성한 설명을 notes.json 으로 저장">설명 내보내기</button>
+      <button id="btnImp" title="notes.json 불러오기(병합)">설명 가져오기</button>
+      <input type="file" id="fileIdx" accept=".json" multiple hidden>
+      <input type="file" id="fileNote" accept=".json" hidden>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="meta" id="meta">불러오는 중…</div>
+  <div id="pageChip" class="small" style="display:none;margin:0 0 10px"></div>
+  <div id="diag" style="display:none"></div>
+  <div id="result"></div>
+</main>
+
+<aside id="panel">
+  <div class="hd">
+    <div>
+      <div id="pName"></div>
+      <div class="small" id="pSub" style="margin-top:4px"></div>
+    </div>
+    <button id="pClose" title="닫기 (Esc)">✕</button>
+  </div>
+  <div class="bd">
+    <dl id="pDl"></dl>
+    <div class="drawer-actions">
+      <a id="pOpen" target="_blank" rel="noopener">
+        <button class="pri" id="pOpenBtn">📄 PDF 해당 페이지 열기</button>
+      </a>
+      <button id="pSamePage" title="이 페이지에서 인덱싱된 항목만 모아 보기 (원본과 대조용)">이 페이지 항목 보기</button>
+      <input id="pdfBase" style="width:170px" title="PDF가 있는 주소/폴더 (예: pdfs/ 또는 https://사내서버/도면/ 또는 file:///Z:/도면/). 비우면 열기 버튼을 숨깁니다." placeholder="PDF 경로 (선택)">
+      <button id="pCopy" title="문서명·페이지·품번을 복사 (원본 PDF 를 직접 찾아 열 때)">📋 위치 복사</button>
+    </div>
+    <div class="note-header">📝 설명 / 메모</div>
+    <textarea id="note" placeholder="이 Part에 대한 설명, 교체주기, 대체품, 구매처 등을 적으세요. (자동 저장)"></textarea>
+    <div class="small" id="noteInfo" style="margin-top:6px"></div>
+  </div>
+</aside>
+
+<script>
+const $ = s => document.querySelector(s);
+const LS_NOTES = 'partportal.notes.v1', LS_BASE = 'partportal.pdfbase';
+let DATA = {docs: [], parts: []}, SHARED = {}, LOCAL = {};
+let rows = [], shown = 0, sortKey = null, sortDir = 1, curId = null, curRow = null;
+let APP = false, pageFilter = null;   // APP: Part Indexer 앱 안에서 열린 경우(설명을 파일로 자동 저장)
+const PAGE = 300;
+const TYPE = {drawing: '도면', manual: '매뉴얼', data: '자료'};
+const docOf = f => DATA.docs.find(x => x.file === f);
+const isPdf = f => (docOf(f)?.kind || 'pdf') === 'pdf';
+
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const key = s => String(s ?? '').toLowerCase().replace(/×/g,'x').replace(/[\s\-_]/g,'');
+const noteOf = id => (LOCAL[id] ?? SHARED[id])?.text || '';
+
+function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } }
+function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)) } catch {} }
+
+// ── 로컬 인덱스 파일 기억 (Edge/Chrome: File System Access API + IndexedDB) ──
+const idb = () => new Promise((res, rej) => { const r = indexedDB.open('partportal', 1); r.onupgradeneeded = () => r.result.createObjectStore('h'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+async function hGet(){ try { const db = await idb(); return await new Promise(res => { const q = db.transaction('h').objectStore('h').get('last'); q.onsuccess = () => res(q.result); q.onerror = () => res(null); }); } catch { return null; } }
+async function hSet(v){ try { const db = await idb(); db.transaction('h', 'readwrite').objectStore('h').put(v, 'last'); } catch {} }
+
+// 여러 인덱스 JSON 을 하나로 합침 (문서 파일명 기준 중복 제거, Part 는 id 기준)
+function mergeIndexes(list){
+  if (list.length === 1) return list[0];
+  const out = {generated: '', docs: [], parts: [], pages: [], titles: []}, seenDoc = new Set(), seenPart = new Set();
+  for (const d of list) {
+    const keep = new Set();
+    for (const x of d.docs || []) if (!seenDoc.has(x.file)) { seenDoc.add(x.file); keep.add(x.file); out.docs.push(x); }
+    for (const p of d.parts || []) if ((keep.has(p.doc) || !seenDoc.has(p.doc)) && !seenPart.has(p.id)) { seenPart.add(p.id); out.parts.push(p); }
+    for (const k of ['pages', 'titles']) for (const x of d[k] || []) if (keep.has(x.doc)) out[k].push(x);
+    if ((d.generated || '') > out.generated) out.generated = d.generated;
+  }
+  return out;
+}
+async function loadHandles(hs, interactive){
+  const list = [];
+  for (const h of hs) {
+    let perm = await h.queryPermission({mode: 'read'});
+    if (perm !== 'granted' && interactive) perm = await h.requestPermission({mode: 'read'});
+    if (perm !== 'granted') return false;
+    list.push(JSON.parse(await (await h.getFile()).text()));
+  }
+  setData(mergeIndexes(list), '내 PC 파일: ' + hs.map(h => h.name).join(', '));
+  return true;
+}
+async function pickIndex(){
+  if (window.showOpenFilePicker) {
+    try {
+      const hs = await showOpenFilePicker({multiple: true, types: [{description: '인덱스 JSON', accept: {'application/json': ['.json']}}]});
+      await hSet(hs);
+      if (!await loadHandles(hs, true)) throw 0;
+    } catch (e) { if (e && e.name === 'AbortError') return; alert('올바른 인덱스(JSON) 파일이 아니거나 읽을 수 없습니다.'); }
+  } else $('#fileIdx').click();   // Firefox/Safari: 기억 기능 없이 매번 선택
+}
+async function showStart(){
+  const hs = await hGet(), name = hs && hs.length ? hs.map(h => h.name).join(', ') : '';
+  $('#meta').textContent = '인덱스 데이터가 없습니다.';
+  $('#result').innerHTML = `<div class="empty"><div style="font-size:15px;color:var(--tx);font-weight:700;margin-bottom:6px">인덱스 파일을 선택하세요</div>
+    <div style="margin-bottom:16px">Part Indexer 로 만든 <b>parts_index.json</b> (여러 개 선택하면 합쳐서 검색)</div>
+    <button class="pri" id="stPick" style="padding:10px 22px">📂 인덱스 파일 선택</button>
+    ${name ? `<button id="stLast" style="padding:10px 22px;margin-left:8px">↻ 마지막 파일 다시 열기 · ${esc(name)}</button>` : ''}
+    <div class="small" style="margin-top:16px">선택한 파일은 이 브라우저 안에서만 읽으며 어디로도 전송되지 않습니다.</div></div>`;
+  $('#stPick').onclick = pickIndex;
+  if ($('#stLast')) $('#stLast').onclick = async () => { try { if (!await loadHandles(hs, true)) alert('파일 접근 권한이 거부되었습니다.'); } catch { alert('파일을 열 수 없습니다. 이동/삭제되었을 수 있습니다.'); } };
+}
+
+// data/ 안의 인덱스 JSON 목록: ① manifest.json ② 폴더 목록(로컬 서버) ③ parts_index.json 한 개
+const isIndexName = n => !/^(notes|manifest)\.json$/i.test(n) && !/\.notes\.json$/i.test(n);
+async function discoverIndexFiles(){
+  if (!APP) {   // 앱 내장 서버는 방금 저장한 인덱스 1개만 제공
+    try {
+      const r = await fetch('data/manifest.json', {cache: 'no-store'});
+      if (r.ok) { const m = await r.json(), f = Array.isArray(m) ? m : m.files; if (f && f.length) return f.map(x => 'data/' + x.split('/').map(encodeURIComponent).join('/')); }
+    } catch {}
+    try {
+      const r = await fetch('data/', {cache: 'no-store'});
+      if (r.ok && (r.headers.get('content-type') || '').includes('text/html')) {
+        const names = [...(await r.text()).matchAll(/href="([^"?#]+\.json)"/gi)].map(m => decodeURIComponent(m[1].split('/').pop())).filter(isIndexName);
+        if (names.length) return [...new Set(names)].map(x => 'data/' + encodeURIComponent(x));
+      }
+    } catch {}
+  }
+  return ['data/parts_index.json'];
+}
+
+async function boot(){
+  const onPages = !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && location.protocol.startsWith('http');   // 내 PC 서버가 아니면(github.io·사내 Pages 등) PDF 가 없음
+  LOCAL = lsGet(LS_NOTES, {});
+  $('#pdfBase').value = lsGet(LS_BASE, onPages ? '' : 'pdfs/');   // GitHub Pages 에는 PDF 가 없으므로 기본은 링크 없음
+  try { APP = !!(await (await fetch('api/ping', {cache:'no-store'})).json()).app } catch {}
+  if (APP) { LOCAL = {}; $('#pdfBase').style.display = 'none'; $('#pdfBase').value = 'pdfs/'; }  // 앱: 설명은 파일에 저장, 경로 고정
+  try { SHARED = await (await fetch('data/notes.json', {cache:'no-store'})).json() } catch {}
+  const custom = new URLSearchParams(location.search).get('data');   // ?data=다른경로.json (쉼표로 여러 개)
+  try {
+    const files = custom ? custom.split(',') : await discoverIndexFiles();
+    const got = (await Promise.allSettled(files.map(async f => { const r = await fetch(f, {cache: 'no-store'}); if (!r.ok) throw 0; const j = await r.json(); if (!Array.isArray(j.parts)) throw 0; return j; })))
+      .filter(x => x.status === 'fulfilled').map(x => x.value);
+    if (!got.length) throw 0;
+    setData(mergeIndexes(got), custom ? '주소: ' + custom : `저장소 데이터 ${got.length}개 파일`);
+    return;
+  } catch {}
+  try { const hs = await hGet(); if (hs && hs.length && await loadHandles(hs, false)) return; } catch {}   // 권한이 유지돼 있으면 자동으로 다시 열기
+  showStart();
+}
+
+function setData(d, src){
+  DATA = d; DATA._src = src || '';
+  const sel = $('#fdoc'); sel.length = 1;
+  DATA.docs.forEach(x => sel.add(new Option(`[${TYPE[x.type] || x.type}] ${x.file}`, x.file)));
+  pageFilter = null;
+  const warns = DATA.docs.filter(x => x.warnings?.length);
+  DATA._warn = warns.length;
+  run();
+}
+
+function run(){
+  const toks = $('#q').value.trim().split(/\s+/).filter(Boolean).map(key);
+  const ft = $('#ftype').value, fd = $('#fdoc').value, fn = $('#fnote').checked;
+  const typeOf = Object.fromEntries(DATA.docs.map(d => [d.file, d.type]));
+  rows = DATA.parts.filter(p => {
+    if (ft && typeOf[p.doc] !== ft) return false;
+    if (fd && p.doc !== fd) return false;
+    if (pageFilter && (p.doc !== pageFilter.doc || p.page !== pageFilter.page)) return false;
+    const note = noteOf(p.id);
+    if (fn && !note) return false;
+    if (!toks.length) return true;
+    const hay = key([p.name,p.spec,p.pn,p.material,p.remark,p.title,p.doc,note].join(' '));
+    return toks.every(t => hay.includes(t));
+  });
+  const chip = $('#pageChip');
+  if (pageFilter) { chip.style.display = ''; chip.innerHTML = `📍 <b>${esc(pageFilter.doc)}</b> p.${pageFilter.page} 에서 인덱싱된 항목만 표시 중 <button id="chipX" style="padding:2px 10px;margin-left:8px">해제</button>`; $('#chipX').onclick = () => { pageFilter = null; run(); }; }
+  else chip.style.display = 'none';
+  if (toks.length && !pageFilter) {
+    const raw = $('#q').value.trim().toLowerCase().split(/\s+/);
+    for (const g of (DATA.pages || [])) {
+      if (ft && typeOf[g.doc] !== ft) continue;
+      if (fd && g.doc !== fd) continue;
+      const id = 'pg:' + g.doc + ':' + g.page, note = noteOf(id);
+      if (fn && !note) continue;
+      const hay = key(g.text + ' ' + (g.title || '') + ' ' + note);
+      if (!toks.every(t => hay.includes(t))) continue;
+      const low = g.text.toLowerCase(); let at = -1;
+      for (const r of raw) { at = low.indexOf(r); if (at >= 0) break; }
+      const s = at < 0 ? 0 : Math.max(0, at - 30);
+      rows.push({id, name: (s ? '…' : '') + g.text.slice(s, s + 110), spec: '', pn: '', qty: '', material: '', remark: '', title: g.title || '', doc: g.doc, page: g.page, src: 'pagetext'});
+    }
+  }
+  if (sortKey) rows.sort((a,b) => String(a[sortKey]).localeCompare(String(b[sortKey]), 'ko', {numeric:true}) * sortDir);
+  shown = 0; $('#result').innerHTML = ''; more(toks);
+  const w = DATA._warn ? ` · <span class="warn">⚠ 경고 문서 ${DATA._warn}개(스캔/보안 가능)</span>` : '';
+  $('#meta').innerHTML = `결과 <b>${rows.length.toLocaleString()}</b>건 / 전체 ${DATA.parts.length.toLocaleString()}건 · 문서 ${DATA.docs.length}개 · 인덱스 생성 ${esc(DATA.generated||'-')}${DATA._src ? ' · ' + esc(DATA._src) : ''}${w}`;
+}
+
+function hl(text, toks){
+  let s = esc(text);
+  if (!toks.length) return s;
+  toks.forEach(t => { try { s = s.replace(new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'), '<mark>$1</mark>') } catch {} });
+  return s;
+}
+
+function more(toks){
+  toks = toks || $('#q').value.trim().split(/\s+/).filter(Boolean);
+  if (!rows.length){ $('#result').innerHTML = '<div class="empty">일치하는 검색 결과가 없습니다. 검색어나 필터를 변경해 보세요.</div>'; return; }
+  let t = $('#result table');
+  if (!t){
+    $('#result').innerHTML = `<div class="table-wrap"><table><thead><tr>
+      <th data-k="name">Part 이름</th><th data-k="spec">규격</th><th data-k="pn">품번</th><th data-k="qty">수량</th>
+      <th data-k="title">도면 제목</th><th data-k="doc">문서</th><th data-k="page">페이지</th><th>상태</th></tr></thead><tbody></tbody></table></div><div class="row" style="justify-content:center;margin-top:20px" id="moreWrap"></div>`;
+    t = $('#result table');
+    t.querySelectorAll('th[data-k]').forEach(th => th.onclick = () => { const k=th.dataset.k; sortDir = sortKey===k ? -sortDir : 1; sortKey=k; run(); });
+  }
+  const chunk = rows.slice(shown, shown + PAGE); shown += chunk.length;
+  t.tBodies[0].insertAdjacentHTML('beforeend', chunk.map(p => `<tr data-id="${p.id}">
+    <td><strong style="color:var(--tx)">${hl(p.name||'(이름 없음)',toks)}</strong></td>
+    <td>${hl(p.spec,toks)}</td>
+    <td><code>${hl(p.pn,toks)}</code></td>
+    <td>${esc(p.qty)}</td>
+    <td>${hl(p.title||'',toks)}</td>
+    <td class="small">${esc(p.doc)}</td>
+    <td><span class="tag">p.${p.page}</span></td>
+    <td>${noteOf(p.id)?'<span class="tag n">설명</span> ':''}${p.src==='text'?'<span class="tag t" title="표가 아닌 본문에서 추정">추정</span>':''}${p.src==='manual'?'<span class="tag m" title="앱에서 수동으로 입력한 항목">수동</span>':''}${p.src==='pagetext'?'<span class="tag m" title="표가 없는 페이지의 글자 검색 결과">페이지 글자</span>':''}${(p.src||'').startsWith('ocr')?'<span class="tag t" title="OCR 인식 결과 - 오탈자/열 구분 오류 가능, 원본 확인 권장">OCR</span>':''}</td></tr>`).join(''));
+  $('#moreWrap').innerHTML = shown < rows.length ? `<button id="btnMore" style="padding:10px 24px">더 보기 (${shown} / ${rows.length})</button>` : '';
+  if ($('#btnMore')) $('#btnMore').onclick = () => more(toks);
+}
+
+$('#result').addEventListener('click', e => { const tr = e.target.closest('tr[data-id]'); if (tr) openPanel(tr.dataset.id, tr); });
+
+function openPanel(id, tr){
+  const p = rows.find(x => x.id === id) || DATA.parts.find(x => x.id === id); if (!p) return;
+  curId = id; curRow = p;
+  document.querySelectorAll('tr.sel').forEach(x => x.classList.remove('sel')); tr?.classList.add('sel');
+  $('#pName').textContent = p.name || p.pn || '(이름 없음)';
+  const d = DATA.docs.find(x => x.file === p.doc);
+  $('#pSub').textContent = (TYPE[d?.type] || '도면') + ' · ' + p.doc + (p.page ? ' · p.' + p.page : '');
+  const f = [['도면 제목',p.title],['번호',p.no],['품번',p.pn],['규격',p.spec],['수량',p.qty],['재질',p.material],['비고',p.remark],['문서',p.doc],['페이지',p.page]];
+  $('#pDl').innerHTML = f.filter(x => x[1]).map(x => `<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join('');
+  updateLink(p);
+  $('#note').value = noteOf(id);
+  const n = LOCAL[id] ?? SHARED[id];
+  $('#noteInfo').textContent = n?.updated ? '마지막 수정: ' + n.updated : '';
+  $('#panel').classList.add('open');
+}
+
+function updateLink(p){
+  let base = $('#pdfBase').value.trim(); if (base && !base.endsWith('/')) base += '/';
+  const pdf = isPdf(p.doc), real = docOf(p.doc)?.kind !== 'manual' && (APP || $('#pdfBase').value.trim());   // 'manual' kind = 수동 입력(원본 없음), 경로 비면 링크 숨김
+  $('#pOpen').style.display = real ? '' : 'none';
+  $('#pSamePage').style.display = p.page ? '' : 'none';
+  $('#pOpenBtn').textContent = pdf ? '📄 PDF 해당 페이지 열기' : '📄 원본 파일 열기';
+  $('#pOpen').href = base + p.doc.split('/').map(encodeURIComponent).join('/') + (pdf ? '#page=' + p.page : '');
+}
+
+$('#pSamePage').onclick = () => { if (!curRow) return; pageFilter = {doc: curRow.doc, page: curRow.page}; $('#q').value = ''; $('#ftype').value = ''; $('#fdoc').value = ''; run(); $('#pClose').click(); };
+
+function showDiag(){
+  const box = $('#diag');
+  if (box.style.display !== 'none') { box.style.display = 'none'; return; }
+  const rowsH = DATA.docs.map(d => {
+    const w = (d.warnings || []).map(esc).join('<br>');
+    const per = d.pages ? (d.count / d.pages).toFixed(1) : '-';
+    const bad = d.count === 0 && d.kind !== 'manual';
+    return `<tr${bad ? ' style="background:var(--warn-bg)"' : ''}><td class="small"><a href="#" data-doc="${esc(d.file)}">${esc(d.file)}</a></td><td>${TYPE[d.type] || d.type}</td><td>${esc(d.kind || '')}</td>
+      <td>${d.pages ?? ''}</td><td><b>${d.count}</b>${bad ? ' ⚠' : ''}</td><td>${per}</td><td>${d.ocr_pages || 0}</td><td class="small">${w}</td></tr>`;
+  }).join('');
+  const srcs = {}; DATA.parts.forEach(p => srcs[p.src || '?'] = (srcs[p.src || '?'] || 0) + 1);
+  const noTitle = DATA.parts.filter(p => !p.title).length, noPn = DATA.parts.filter(p => !p.pn).length, noName = DATA.parts.filter(p => !p.name).length;
+  box.innerHTML = `<div class="table-wrap" style="margin-bottom:14px"><table><thead><tr><th>문서</th><th>종류</th><th>형식</th><th>페이지/행</th><th>Part 수</th><th>페이지당</th><th>OCR</th><th>경고</th></tr></thead><tbody>${rowsH}</tbody></table></div>
+    <div class="small" style="margin-bottom:14px">추출 방식별: ${Object.entries(srcs).map(([k, v]) => `${esc(k)} ${v.toLocaleString()}`).join(' · ')} · 이름 없음 ${noName.toLocaleString()} · 품번 없음 ${noPn.toLocaleString()} · 제목 없음 ${noTitle.toLocaleString()} · 페이지 글자 ${(DATA.pages || []).length.toLocaleString()}건<br>
+    Part 수가 0이거나 페이지당 건수가 너무 적은 문서(노란 줄)는 표 인식이 안 된 것일 수 있습니다. 문서명을 누르면 해당 문서만 보고, 항목을 눌러 <b>이 페이지 항목 보기</b>로 원본과 대조하세요.</div>`;
+  box.style.display = '';
+  box.querySelectorAll('a[data-doc]').forEach(a => a.onclick = e => { e.preventDefault(); $('#fdoc').value = a.dataset.doc; box.style.display = 'none'; run(); });
+}
+$('#btnDiag').onclick = showDiag;
+
+$('#pdfBase').oninput = () => { lsSet(LS_BASE, $('#pdfBase').value); if (curRow) updateLink(curRow); };
+$('#pClose').onclick = () => { $('#panel').classList.remove('open'); document.querySelectorAll('tr.sel').forEach(x=>x.classList.remove('sel')); };
+document.addEventListener('keydown', e => { if (e.key==='Escape') $('#pClose').click(); });
+
+let saveT;
+$('#note').oninput = () => {
+  clearTimeout(saveT);
+  saveT = setTimeout(() => {
+    const text = $('#note').value, now = new Date().toLocaleString('sv').slice(0,16);
+    if (text.trim()) LOCAL[curId] = {text, updated: now}; else LOCAL[curId] = {text:'', updated: now};
+    if (APP) {
+      fetch('api/notes', {method: 'POST', body: JSON.stringify(merged())}).then(r => $('#noteInfo').textContent = (r.ok ? '파일에 저장됨 · ' : '저장 실패 · ') + now).catch(() => $('#noteInfo').textContent = '저장 실패');
+    } else {
+      lsSet(LS_NOTES, LOCAL);
+      $('#noteInfo').textContent = '저장됨(이 브라우저) · ' + now + ' — 공유하려면 "설명 내보내기" 후 data/notes.json 에 반영';
+    }
+    const tr = document.querySelector(`tr[data-id="${curId}"] td:last-child`);
+    if (tr) tr.querySelector('.tag.n')?.remove(), text.trim() && tr.insertAdjacentHTML('afterbegin','<span class="tag n">설명</span> ');
+  }, 300);
+};
+
+const merged = () => { const m = {...SHARED, ...LOCAL}; Object.keys(m).forEach(k => { if(!m[k].text) delete m[k]; }); return m; };
+$('#btnExp').onclick = () => {
+  const blob = new Blob([JSON.stringify(merged(), null, 1)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'notes.json'; a.click();
+};
+$('#btnImp').onclick = () => $('#fileNote').click();
+$('#fileNote').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { Object.assign(LOCAL, JSON.parse(await f.text())); lsSet(LS_NOTES, LOCAL); run(); alert('설명을 병합했습니다.'); } catch { alert('올바른 notes.json 이 아닙니다.'); }
+  e.target.value = '';
+};
+$('#btnLoad').onclick = pickIndex;
+$('#fileIdx').onchange = async e => {
+  const fs = [...e.target.files]; if (!fs.length) return;
+  try { setData(mergeIndexes(await Promise.all(fs.map(async f => JSON.parse(await f.text())))), '내 PC 파일: ' + fs.map(f => f.name).join(', ')); } catch { alert('올바른 parts_index.json 이 아닙니다.'); }
+  e.target.value = '';
+};
+$('#pCopy').onclick = async () => {
+  if (!curRow) return;
+  const t = [curRow.doc + (curRow.page ? ' · p.' + curRow.page : ''), curRow.pn, curRow.name].filter(Boolean).join(' · ');
+  try { await navigator.clipboard.writeText(t); } catch { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); }
+  $('#pCopy').textContent = '✔ 복사됨'; setTimeout(() => $('#pCopy').textContent = '📋 위치 복사', 1500);
+};
+
+let qT; $('#q').oninput = () => { clearTimeout(qT); qT = setTimeout(run, 120); };
+['#ftype','#fdoc','#fnote'].forEach(s => $(s).onchange = run);
+boot();
+</script>
+</body>
+</html>

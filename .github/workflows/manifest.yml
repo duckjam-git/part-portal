@@ -1,0 +1,23 @@
+# docs/data 에 인덱스 JSON 을 올리면 manifest.json(웹 화면이 자동으로 불러올 파일 목록)을 갱신해 커밋
+name: update data manifest
+on:
+  push:
+    branches: [main]
+    paths: ["docs/data/**"]
+permissions:
+  contents: write
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python indexer/make_manifest.py docs/data
+      - name: commit manifest
+        run: |
+          if [ -n "$(git status --porcelain docs/data/manifest.json)" ]; then
+            git config user.name "github-actions"
+            git config user.email "actions@users.noreply.github.com"
+            git add docs/data/manifest.json
+            git commit -m "chore: update data manifest"
+            git push
+          fi

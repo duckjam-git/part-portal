@@ -1,0 +1,20 @@
+# 원본 도면/매뉴얼 (대용량·기밀) — 저장소에 올리지 않음
+Part_Data/
+docs/pdfs/
+*.pdf
+
+# 빌드 산출물
+dist/
+dist_new/
+build/
+build_new/
+__pycache__/
+*.pyc
+
+# 로컬 도구 설정
+.claude/
+
+# 개인 작업 사본 / 앱 테스트 출력 (루트의 임시 인덱스·엑셀)
+docs/*복사본*
+/parts_index.json
+/parts_index.xlsx

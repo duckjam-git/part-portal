@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Part Indexer</title>
+<style>
+:root {
+  --bg: #f1f5f9; --card: #ffffff; --tx: #0f172a; --mut: #64748b; --bd: #e2e8f0; --bd2: #cbd5e1;
+  --navy: #0f172a; --navy-tx: #ffffff; --ac: #2563eb; --ac-sub: #eff6ff; --ac-tx: #1d4ed8;
+  --ok: #047857; --ok-bg: #d1fae5; --warn: #b45309; --warn-bg: #fef3c7; --err: #b91c1c; --err-bg: #fee2e2;
+  --run: #1d4ed8; --run-bg: #dbeafe; --row: #f8fafc; --shadow: 0 1px 3px rgba(15,23,42,.06), 0 4px 14px rgba(15,23,42,.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0b1220; --card: #131c2e; --tx: #f1f5f9; --mut: #94a3b8; --bd: #25324a; --bd2: #34445f;
+    --navy: #e2e8f0; --navy-tx: #0b1220; --ac: #60a5fa; --ac-sub: #1e293b; --ac-tx: #93c5fd;
+    --ok: #6ee7b7; --ok-bg: #064e3b; --warn: #fcd34d; --warn-bg: #451a03; --err: #fca5a5; --err-bg: #450a0a;
+    --run: #93c5fd; --run-bg: #1e3a5f; --row: #172236; --shadow: 0 1px 3px rgba(0,0,0,.4); }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--tx); }
+body { font: 14px/1.5 "Pretendard", "Malgun Gothic", "Segoe UI", system-ui, sans-serif; padding: 18px 20px 70px; max-width: 1280px; margin: 0 auto; }
+.card { background: var(--card); border: 1px solid var(--bd); border-radius: 16px; box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 14px; }
+.card h3 { margin: 0 0 12px; font-size: 14.5px; display: flex; align-items: center; gap: 8px; }
+.num { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--navy); color: var(--navy-tx); font-size: 12px; }
+header.card { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+.brand { font-size: 22px; font-weight: 800; letter-spacing: -.3px; }
+.brand small { display: block; font-size: 12.5px; font-weight: 500; color: var(--mut); letter-spacing: 0; }
+.sp { flex: 1; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: var(--ac-sub); color: var(--ac-tx); font-size: 12.5px; font-weight: 600; }
+button { font: inherit; cursor: pointer; border: 1px solid var(--bd2); background: var(--card); color: var(--tx); padding: 8px 15px; border-radius: 999px; font-weight: 600; transition: .12s; }
+button:hover:not(:disabled) { border-color: var(--ac); color: var(--ac); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.pri { background: var(--navy); color: var(--navy-tx); border-color: var(--navy); }
+button.pri:hover:not(:disabled) { opacity: .88; color: var(--navy-tx); }
+button.go { background: var(--ac); border-color: var(--ac); color: #fff; padding: 11px 28px; font-size: 15px; }
+button.go:hover:not(:disabled) { opacity: .9; color: #fff; }
+button.sm { padding: 5px 12px; font-size: 12.5px; }
+button.danger:hover:not(:disabled) { border-color: var(--err); color: var(--err); }
+.tabs { display: flex; gap: 8px; margin: 4px 0 14px; flex-wrap: wrap; }
+.tab { padding: 10px 20px; border-radius: 14px; background: var(--card); border: 1px solid var(--bd); color: var(--mut); }
+.tab.on { background: var(--navy); color: var(--navy-tx); border-color: var(--navy); }
+.tab .b { background: #dc2626; color: #fff; border-radius: 999px; font-size: 11px; padding: 1px 7px; margin-left: 6px; }
+.pane { display: none; } .pane.on { display: block; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.row + .row { margin-top: 12px; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--mut); font-weight: 600; }
+label.inl { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--tx); font-weight: 500; }
+input[type=text], select { font: inherit; padding: 8px 11px; border: 1px solid var(--bd2); border-radius: 10px; background: var(--card); color: var(--tx); min-width: 0; }
+input[type=text]:focus, select:focus { outline: 2px solid var(--ac-sub); border-color: var(--ac); }
+input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--ac); }
+.tw { border: 1px solid var(--bd); border-radius: 12px; overflow: auto; max-height: 300px; margin-top: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { position: sticky; top: 0; background: var(--row); text-align: left; padding: 9px 12px; font-size: 12px; color: var(--mut); border-bottom: 1px solid var(--bd); white-space: nowrap; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--bd); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+tr.sel td { background: var(--ac-sub); }
+tr.click { cursor: pointer; } tr.click:hover td { background: var(--row); }
+tr.bad td { background: var(--warn-bg); }
+td.r, th.r { text-align: right; } .mut { color: var(--mut); } .small { font-size: 12px; }
+.empty { padding: 26px; text-align: center; color: var(--mut); }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.b-wait { background: var(--row); color: var(--mut); border: 1px solid var(--bd); }
+.b-run { background: var(--run-bg); color: var(--run); }
+.b-ok { background: var(--ok-bg); color: var(--ok); }
+.b-warn { background: var(--warn-bg); color: var(--warn); }
+.b-err { background: var(--err-bg); color: var(--err); }
+.bar { height: 10px; border-radius: 999px; background: var(--row); border: 1px solid var(--bd); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--ac); transition: width .25s; }
+.bar.thin { height: 6px; margin-top: 6px; } .bar.thin i { background: #94a3b8; }
+.log { margin-top: 12px; height: 150px; overflow: auto; background: var(--row); border: 1px solid var(--bd); border-radius: 12px; padding: 10px 12px; font: 12px/1.55 Consolas, "Malgun Gothic", monospace; white-space: pre-wrap; }
+.banner { display: none; align-items: center; gap: 12px; margin-top: 12px; padding: 12px 16px; border-radius: 12px; background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+.banner.on { display: flex; } .banner.err { background: var(--err-bg); color: var(--err); }
+.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px 12px; }
+.grid label.f input { width: 100%; }
+.stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.stat { background: var(--row); border: 1px solid var(--bd); border-radius: 12px; padding: 10px 18px; min-width: 120px; }
+.stat b { display: block; font-size: 22px; letter-spacing: -.5px; } .stat span { font-size: 12px; color: var(--mut); }
+#toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--navy); color: var(--navy-tx); padding: 10px 20px; border-radius: 999px; font-weight: 600; box-shadow: var(--shadow); max-width: 90vw; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 9; }
+#toast.on { opacity: 1; } #toast.err { background: #dc2626; color: #fff; }
+.note { color: var(--mut); font-size: 12.5px; margin: 0 0 12px; }
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<header class="card">
+  <div class="brand">🔧 Part Indexer<small>도면 · 매뉴얼 · 이미지 · txt/csv/xlsx → Part 인덱스 → 검색</small></div>
+  <span class="chip" id="chipIdx">현재 인덱스: (저장 전)</span>
+  <span class="sp"></span>
+  <button id="btnOpenIdx">📂 기존 인덱스 열기</button>
+  <button id="btnNew">새 인덱스</button>
+  <button class="pri" id="btnViewer">🔍 검색 화면 열기 (진단)</button>
+</header>
+
+<nav class="tabs">
+  <button class="tab on" data-t="run">① 인덱싱</button>
+  <button class="tab" data-t="man">② 수동 입력</button>
+  <button class="tab" data-t="res">③ 결과 / 진단 <span class="b" id="tabWarn" style="display:none"></span></button>
+</nav>
+
+<section class="pane on" id="p-run">
+  <div class="card">
+    <h3><span class="num">1</span>파일 선택 <span class="mut small">PDF · 이미지(PNG/JPG/TIF/BMP/GIF) · txt · csv · xlsx</span></h3>
+    <div class="row">
+      <button class="pri" id="btnFiles">＋ 파일 추가</button>
+      <button class="pri" id="btnFolder">＋ 폴더 추가</button>
+      <button class="danger" id="btnRemove">선택 삭제</button>
+      <button class="danger" id="btnClear">모두 지우기</button>
+      <span class="sp"></span><span class="mut" id="fileCount">0개</span>
+    </div>
+    <div class="tw"><table><thead><tr><th style="width:34px"><input type="checkbox" id="chkAll"></th><th>파일</th><th>폴더</th><th class="r">크기</th><th>상태</th></tr></thead><tbody id="fileBody"></tbody></table></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">2</span>옵션 / 출력</h3>
+    <div class="row">
+      <label class="f">OCR<select id="oOcr"><option value="auto">자동 (글자 없는 페이지만 OCR)</option><option value="off">OCR 끄기</option><option value="force">모든 페이지 OCR (느림)</option></select></label>
+      <label class="f">문서 종류<select id="oType"><option value="">자동 판별</option><option value="drawing">도면</option><option value="manual">매뉴얼</option><option value="data">자료(목록 등)</option></select></label>
+      <label class="f">PDF 페이지 범위 (시험용)<input type="text" id="oPages" placeholder="예: 1-20 (비우면 전체)" style="width:190px"></label>
+      <label class="inl" style="margin-top:18px"><input type="checkbox" id="oAppend" checked> 출력 파일에 이어서 추가·갱신 (바뀌지 않은 파일은 건너뜀)</label>
+    </div>
+    <div class="row">
+      <label class="f" style="flex:1;min-width:300px">출력 파일 (JSON)<input type="text" id="oOut" placeholder="저장 위치·이름을 지정하세요"></label>
+      <button id="btnPickOut" style="margin-top:18px">저장 위치·이름…</button>
+      <label class="inl" style="margin-top:18px"><input type="checkbox" id="oJson" checked> JSON</label>
+      <label class="inl" style="margin-top:18px"><input type="checkbox" id="oXlsx" checked> Excel(.xlsx)</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">3</span>실행</h3>
+    <div class="row">
+      <button class="go" id="btnGo">▶ Indexing</button>
+      <button class="danger" id="btnStop" disabled>■ 취소</button>
+      <span id="progTxt" class="mut"></span><span class="sp"></span><span id="elapsed" class="mut"></span>
+    </div>
+    <div class="bar" style="margin-top:14px"><i id="barAll"></i></div>
+    <div class="bar thin"><i id="barFile"></i></div>
+    <div class="banner" id="banner"><span id="bannerTx"></span><span class="sp"></span><button class="pri sm" id="btnBannerView">🔍 검색 화면에서 확인</button></div>
+    <div class="log" id="log"></div>
+  </div>
+</section>
+
+<section class="pane" id="p-man">
+  <div class="card">
+    <h3>수동 입력</h3>
+    <p class="note">파일에서 자동으로 못 읽는 항목을 직접 입력합니다. 저장하면 인덱싱 결과와 같은 검색 화면에 함께 나옵니다. 문서 칸에 인덱싱된 파일명을 쓰고 페이지를 넣으면 검색 화면에서 그 페이지로 바로 연결됩니다.</p>
+    <div class="grid">
+      <label class="f">문서(파일명)<input type="text" id="m_doc" list="docList" placeholder="수동 입력"></label>
+      <label class="f">페이지<input type="text" id="m_page"></label>
+      <label class="f">번호<input type="text" id="m_no"></label>
+      <label class="f">품번<input type="text" id="m_pn"></label>
+      <label class="f">Part 이름 *<input type="text" id="m_name"></label>
+      <label class="f">규격<input type="text" id="m_spec"></label>
+      <label class="f">수량<input type="text" id="m_qty"></label>
+      <label class="f">재질<input type="text" id="m_material"></label>
+      <label class="f">비고<input type="text" id="m_remark"></label>
+      <label class="f">도면 제목<input type="text" id="m_title"></label>
+    </div>
+    <datalist id="docList"></datalist>
+    <div class="row">
+      <button class="pri" id="btnMAdd">＋ 추가</button>
+      <button id="btnMUpd">선택 항목에 수정 반영</button>
+      <button class="danger" id="btnMDel">선택 삭제</button>
+      <button id="btnMClr">입력칸 비우기</button>
+      <span class="sp"></span>
+      <button class="pri" id="btnSave">💾 지금 저장 (JSON/Excel)</button>
+    </div>
+    <div class="tw" style="max-height:360px"><table><thead><tr><th>문서</th><th>페이지</th><th>번호</th><th>품번</th><th>Part 이름</th><th>규격</th><th>수량</th><th>재질</th><th>비고</th><th>도면 제목</th></tr></thead><tbody id="manBody"></tbody></table></div>
+  </div>
+</section>
+
+<section class="pane" id="p-res">
+  <div class="card">
+    <h3>결과 / 진단</h3>
+    <div class="stats" id="stats"></div>
+    <div class="row"><label class="inl"><input type="checkbox" id="onlyBad"> 문제 있는 문서만 (0건 · 경고 · 실패)</label><span class="sp"></span>
+      <span class="mut small">자세한 대조는 <b>검색 화면의 ‘진단’</b> 과 ‘이 페이지 항목 보기’ 를 사용하세요.</span></div>
+    <div class="tw" style="max-height:520px"><table><thead><tr><th>문서</th><th>종류</th><th>형식</th><th class="r">페이지/행</th><th class="r">Part 수</th><th class="r">OCR</th><th>경고 / 메모</th></tr></thead><tbody id="docBody"></tbody></table></div>
+  </div>
+</section>
+
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const TOKEN = (location.hash.match(/t=([^&]+)/) || [])[1] || '';
+const TYPE = {drawing: '도면', manual: '매뉴얼', data: '자료'};
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S = null, sel = new Set(), editId = null, lastSeq = null, tT;
+
+async function api(name, body) {
+  try {
+    const r = await fetch('/api/app/' + name, {method: 'POST', headers: {'X-Token': TOKEN, 'Content-Type': 'application/json'}, body: JSON.stringify(body || {})});
+    const j = await r.json();
+    if (j.ok === false && j.error) toast(j.error, true);
+    return j;
+  } catch (e) { toast('앱과 연결이 끊어졌습니다. 앱을 다시 실행하세요.', true); return {ok: false}; }
+}
+function toast(msg, err) { const t = $('#toast'); t.textContent = msg; t.className = 'on' + (err ? ' err' : ''); clearTimeout(tT); tT = setTimeout(() => t.className = '', err ? 5000 : 2600); }
+const opts = () => ({ocr: $('#oOcr').value, type: $('#oType').value, pages: $('#oPages').value, append: $('#oAppend').checked,
+                     json: $('#oJson').checked, xlsx: $('#oXlsx').checked, out: $('#oOut').value.trim()});
+const fmt = s => { s = Math.floor(s); return s >= 3600 ? `${Math.floor(s/3600)}:${String(Math.floor(s%3600/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}` : `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
+
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => showTab(b.dataset.t));
+function showTab(t) { document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.dataset.t === t)); document.querySelectorAll('.pane').forEach(x => x.classList.toggle('on', x.id === 'p-' + t)); }
+
+// ── 파일 ──
+$('#btnFiles').onclick = async () => { await api('pick_files'); poll(); };
+$('#btnFolder').onclick = async () => { await api('pick_folder'); poll(); };
+$('#btnRemove').onclick = async () => { await api('remove', {ids: [...sel]}); sel.clear(); poll(); };
+$('#btnClear').onclick = async () => { await api('clear'); sel.clear(); poll(); };
+$('#chkAll').onchange = e => { sel = new Set(e.target.checked ? S.files.map(f => f.id) : []); renderFiles(true); };
+$('#btnPickOut').onclick = async () => { const r = await api('pick_out', {out: $('#oOut').value}); if (r.path) $('#oOut').value = r.path; };
+function stateBadge(s) {
+  const c = s.startsWith('완료') ? (s.includes('⚠') ? 'b-warn' : 'b-ok') : s.startsWith('진행') ? 'b-run' : s === '실패' ? 'b-err' : s.startsWith('변경') ? 'b-ok' : s === '취소됨' ? 'b-warn' : 'b-wait';
+  return `<span class="badge ${c}">${esc(s)}</span>`;
+}
+let filesSig = '';
+function renderFiles(force) {
+  const sig = JSON.stringify(S.files) + [...sel].join(',');
+  if (!force && sig === filesSig) return; filesSig = sig;
+  $('#fileCount').textContent = S.files.length + '개';
+  $('#fileBody').innerHTML = S.files.length ? S.files.map(f => `<tr class="${sel.has(f.id) ? 'sel' : ''}"><td><input type="checkbox" data-id="${f.id}" ${sel.has(f.id) ? 'checked' : ''}></td>
+    <td><b>${esc(f.name)}</b></td><td class="mut small">${esc(f.folder)}</td><td class="r mut">${esc(f.size)}</td><td>${stateBadge(f.state)}</td></tr>`).join('')
+    : '<tr><td colspan="5" class="empty">＋ 파일 추가 또는 ＋ 폴더 추가로 인덱싱할 파일을 선택하세요.</td></tr>';
+  $('#fileBody').querySelectorAll('input[data-id]').forEach(c => c.onchange = () => { const id = +c.dataset.id; c.checked ? sel.add(id) : sel.delete(id); renderFiles(true); });
+}
+
+// ── 실행 ──
+$('#btnGo').onclick = async () => {
+  if (!S.files.length) return toast('먼저 ＋ 파일 추가로 인덱싱할 파일을 선택하세요.', true);
+  if (!$('#oOut').value.trim()) { const r = await api('pick_out', {out: ''}); if (!r.path) return; $('#oOut').value = r.path; }
+  if (!$('#oJson').checked && !$('#oXlsx').checked) return toast('JSON 또는 Excel 중 하나는 선택하세요.', true);
+  $('#banner').classList.remove('on');
+  const r = await api('start', opts()); if (r.ok) poll();
+};
+$('#btnStop').onclick = async () => { await api('stop'); poll(); };
+$('#btnOpenIdx').onclick = async () => { const r = await api('open_index'); if (r.path) { $('#oOut').value = r.path; toast('인덱스를 열었습니다'); poll(); } };
+$('#btnNew').onclick = async () => { if (S.index.parts && !confirm('현재 메모리의 인덱스(수동 입력 포함)를 비우고 새로 시작할까요?\n(저장된 파일은 지워지지 않습니다.)')) return; const r = await api('new_index'); if (r.ok) { $('#oOut').value = ''; poll(); } };
+async function viewer() { const r = await api('open_viewer', opts()); if (r.ok) toast('검색 화면을 브라우저에서 열었습니다'); }
+$('#btnViewer').onclick = viewer; $('#btnBannerView').onclick = viewer;
+$('#btnSave').onclick = async () => { if (!$('#oOut').value.trim()) { const r = await api('pick_out', {out: ''}); if (!r.path) return; $('#oOut').value = r.path; } const r = await api('save', opts()); if (r.ok) toast('저장했습니다'); poll(); };
+
+// ── 수동 입력 ──
+const MF = ['doc','page','no','pn','name','spec','qty','material','remark','title'];
+const mvals = () => Object.fromEntries(MF.map(k => [k, $('#m_' + k).value]));
+$('#btnMAdd').onclick = async () => { const r = await api('manual', {op: 'add', fields: mvals()}); if (r.ok) { toast('추가했습니다 — 저장하면 파일에 기록됩니다'); poll(); } };
+$('#btnMUpd').onclick = async () => { if (!editId) return toast('목록에서 수정할 항목을 먼저 선택하세요.', true); const r = await api('manual', {op: 'update', id: editId, fields: mvals()}); if (r.ok) { toast('수정했습니다'); poll(); } };
+$('#btnMDel').onclick = async () => { if (!editId) return toast('목록에서 삭제할 항목을 먼저 선택하세요.', true); await api('manual', {op: 'delete', id: editId}); clearForm(); poll(); };
+$('#btnMClr').onclick = clearForm;
+function clearForm() { MF.forEach(k => $('#m_' + k).value = ''); editId = null; manSig = ''; if (S) renderMan(); }
+let manSig = '';
+function renderMan() {
+  const m = S.index.manual, sig = JSON.stringify(m) + editId; if (sig === manSig) return; manSig = sig;
+  $('#manBody').innerHTML = m.length ? m.map(p => `<tr class="click ${p.id === editId ? 'sel' : ''}" data-id="${p.id}"><td>${esc(p.doc)}</td><td>${p.page || ''}</td><td>${esc(p.no)}</td><td>${esc(p.pn)}</td><td><b>${esc(p.name)}</b></td><td>${esc(p.spec)}</td><td>${esc(p.qty)}</td><td>${esc(p.material)}</td><td>${esc(p.remark)}</td><td>${esc(p.title)}</td></tr>`).join('')
+    : '<tr><td colspan="10" class="empty">아직 수동 입력한 항목이 없습니다.</td></tr>';
+  $('#manBody').querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = () => {
+    const p = m.find(x => x.id === tr.dataset.id); editId = p.id; MF.forEach(k => $('#m_' + k).value = k === 'page' ? (p.page || '') : (p[k] ?? '')); manSig = ''; renderMan(); });
+  $('#docList').innerHTML = ['수동 입력', ...S.index.docs.filter(d => d.kind !== 'manual').map(d => d.file)].map(f => `<option value="${esc(f)}">`).join('');
+}
+
+// ── 결과 ──
+let docSig = '';
+function renderDocs() {
+  const docs = S.index.docs, only = $('#onlyBad').checked, sig = JSON.stringify(docs) + only + S.index.parts; if (sig === docSig) return; docSig = sig;
+  const isBad = d => (d.count === 0 && d.kind !== 'manual') || d.warnings.length;
+  const nWarn = docs.filter(d => isBad(d)).length;
+  const tw = $('#tabWarn'); tw.style.display = nWarn ? '' : 'none'; tw.textContent = nWarn;
+  const man = S.index.manual.length, ocr = docs.reduce((a, d) => a + d.ocr, 0);
+  $('#stats').innerHTML = [['문서', docs.length], ['Part', S.index.parts.toLocaleString()], ['수동 입력', man], ['OCR 페이지', ocr], ['주의 문서', nWarn]].map(([k, v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
+  const list = only ? docs.filter(isBad) : docs;
+  $('#docBody').innerHTML = list.length ? list.map(d => `<tr class="${(d.count === 0 && d.kind !== 'manual') || d.warnings.some(w => w.includes('실패')) ? 'bad' : ''}"><td><b>${esc(d.file)}</b></td><td>${TYPE[d.type] || d.type}</td><td class="mut">${esc(d.kind)}</td>
+    <td class="r">${d.pages}</td><td class="r"><b>${d.count.toLocaleString()}</b></td><td class="r">${d.ocr}</td><td class="small">${d.warnings.map(esc).join('<br>')}</td></tr>`).join('')
+    : `<tr><td colspan="7" class="empty">${docs.length ? '문제 있는 문서가 없습니다 👍' : '아직 결과가 없습니다. ① 인덱싱에서 파일을 처리하세요.'}</td></tr>`;
+}
+$('#onlyBad').onchange = () => { docSig = ''; renderDocs(); };
+
+// ── 상태 폴링 ──
+let first = true;
+async function poll() {
+  let r; try { r = await (await fetch('/api/app/state', {headers: {'X-Token': TOKEN}})).json(); } catch { return; }
+  S = r;
+  if (first) {   // 저장된 옵션 복원
+    const c = r.cfg || {};
+    $('#oOcr').value = ['auto', 'off', 'force'].includes(c.ocr) ? c.ocr : 'auto';   // 이전 버전(한글 라벨) 설정값 방어
+    $('#oType').value = ['drawing', 'manual', 'data'].includes(c.type) ? c.type : ''; $('#oAppend').checked = c.append !== false;
+    $('#oJson').checked = c.json !== false; $('#oXlsx').checked = c.xlsx !== false; $('#oOut').value = c.out || '';
+    lastSeq = r.run_seq; first = false;
+  }
+  $('#chipIdx').textContent = (r.index.path ? '현재 인덱스: ' + r.index.path.split(/[\\/]/).pop() : '현재 인덱스: (저장 전)') + ` · 문서 ${r.index.docs.length} / Part ${r.index.parts.toLocaleString()}`;
+  renderFiles(); renderMan(); renderDocs();
+  const run = r.running;
+  ['btnGo','btnFiles','btnFolder','btnRemove','btnClear','btnOpenIdx','btnNew'].forEach(i => $('#' + i).disabled = run);
+  $('#btnStop').disabled = !run;
+  const p = r.prog || {};
+  $('#barAll').style.width = (run ? Math.max(p.all || 0, 2) : (p.all ?? 0)) + '%'; $('#barFile').style.width = (p.file || 0) + '%';
+  $('#progTxt').textContent = run ? `[${p.i}/${p.total}] ${p.name}  ${p.msg}` : (p.msg && p.total ? p.msg : '');
+  $('#elapsed').textContent = (run || r.elapsed) ? '⏱ ' + fmt(r.elapsed) : '';
+  const lg = $('#log'), txt = r.log.join('\n');
+  if (lg.textContent !== txt) { const bottom = lg.scrollHeight - lg.scrollTop - lg.clientHeight < 40; lg.textContent = txt; if (bottom) lg.scrollTop = lg.scrollHeight; }
+  if (lastSeq !== null && r.run_seq !== lastSeq) {   // 실행 종료
+    lastSeq = r.run_seq; const lr = r.last_run || {};
+    const b = $('#banner'); b.classList.add('on'); b.classList.toggle('err', !lr.ok);
+    $('#bannerTx').textContent = (lr.cancelled ? '취소됨 — 완료된 분량만 저장했습니다. ' : lr.ok ? '인덱싱 완료. ' : '') + (lr.msg || '');
+    showTab('res'); docSig = '';
+  }
+}
+setInterval(poll, 600); poll();
+window.addEventListener('pagehide', () => navigator.sendBeacon('/api/app/bye?t=' + TOKEN, ''));
+</script>
+</body>
+</html>
